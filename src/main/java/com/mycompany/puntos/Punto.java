@@ -9,8 +9,8 @@ import static java.lang.Math.sqrt;
 public class Punto {
 
     
-    private double x;
-    private double y;
+    public double x;
+    public double y;
 
 
     public Punto(double x, double y) {

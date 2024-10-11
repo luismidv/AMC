@@ -5,6 +5,8 @@
 package com.mycompany.puntos;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -16,6 +18,11 @@ public class Filecreator {
     
     static int sizePoints;
     static Punto[] points;
+    
+    public Filecreator(Punto[] points){
+        this.points = points;
+        Filecreator.sizePoints = points.length;
+    }
     
     public static void pointCreator(){
        
@@ -34,26 +41,29 @@ public class Filecreator {
         
         
     }
-    
-    public static void fileWriter(){
+    public static void fileWriter() throws IOException{
         Scanner scan = new Scanner(System.in);
-        String currentPath = ".";
-        File fileManager = new File(currentPath);
-        
         System.out.println("Introduce a name for the file");
         String fileName = scan.nextLine();
+        String currentPath = "./" + fileName+Filecreator.sizePoints +".tsp";
         
+        FileWriter fWriter = new FileWriter(currentPath);
+        fWriter.write("NAME: " + fileName + "\n" + "TYPE: TSP\nCOMMENT: File created by Luismi and Ageu\n"
+                      + "DIMENSION: " + Filecreator.sizePoints + "\nEDGE_WEIGHT_TYPE: GEO\nEDGE_WEIGHT_FORMAT: FUNCTION\n"
+                      + "DISPLAY_DATA_TYPE: COORD_DISPLAY\nNODE_COORD_SECTION\n");
+        for(int id = 0; id<Filecreator.sizePoints; id++){
+            fWriter.write("\t" + id + "\t" + Filecreator.points[id].x + "\t\t" + Filecreator.points[id].y + "\n");
+        }
         
+        fWriter.write("EOF");
         
+        fWriter.close();
     }
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // TODO code application logic here
-       
        pointCreator();
        fileWriter();
        
-       
-       //File fileManager = new File();
        
        
        
