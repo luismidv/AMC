@@ -1,0 +1,11 @@
+NAME : cordoba.opt.tour 
+TYPE : TOUR
+DIMENSION : 7
+SOLUTION : 
+1 valencia (20, 30)
+2 badajoz (30, 50)
+3 cordoba (40, 80)
+4 osuna (20, 40)
+5 huelva (20, 50)
+6 mursia (30, 70)
+7 sevilla (10, 20)

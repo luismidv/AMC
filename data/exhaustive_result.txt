@@ -1,0 +1,11 @@
+NAME : sevilla.opt.tour 
+TYPE : TOUR
+DIMENSION : 7
+SOLUTION : 
+1 sevilla (10, 20)
+2 valencia (20, 30)
+3 osuna (20, 40)
+4 huelva (20, 50)
+5 badajoz (30, 50)
+6 mursia (30, 70)
+7 cordoba (40, 80)

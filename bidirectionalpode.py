@@ -32,6 +32,22 @@ class Bidirectional_algorithm():
         self.visited_dataframe = visited_dataframe
         self.current_city_first = ""
         self.current_city_second = ""
+        self.poded_algorithm = False
+
+    def distance_pode(self):
+        #DEFINIMOS DISTANCIA MAXIMA PARA LA PODA
+
+        #UTILIZAREMOS UN FACTOR K PARA AUMENTAR LA CANTIDAD DE CIUDADES O NO
+        k_factor = 1
+
+        #CALCULAMOS LA MEDIA DE DISTANCIAS CALCULADAS IGNORANDO LAS IGUALES A 0
+        mean_distance = self.dataframe_distances.values[self.dataframe_distances.values > 0].mean()
+
+        #CALCULAMOS LA DESVIACIÓN TÍPICA PARA LAS DISTANCIAS IGNORANDO LAS IGUALES A 0
+        std_deviation = self.dataframe_distances.values[self.dataframe_distances.values > 0].std()
+
+        #COMPUATAMOS EL MAXIMO COMO K * (MEAN + STD)
+        self.max_distance_pode = mean_distance + std_deviation*k_factor
 
     def city_runner(self):
         #PREGUNTA POR LA CIUDAD A LA QUE QUEREMOS IR PRIMERO
@@ -83,8 +99,11 @@ class Bidirectional_algorithm():
             else:
                 #SE EJECUTARA PARA EL RESTO DE ITERACCIONES
                 self.runner_advance("Runner 1")
+                if self.poded_algorithm == True:
+                    break
                 self.runner_advance("Runner 2")
-
+                if self.poded_algorithm == True:
+                    break
 
 
     def visited_dataframe_process(self, runner_city, runner):
@@ -128,23 +147,33 @@ class Bidirectional_algorithm():
         #SI LA EJECUCION ES DEL CORREDOR UNO ASIGNAMOS LA CIUDAD MÁS CERCANA AL CORREDOR 1
         if runner == "Runner 1":
             self.current_city_first = column.index[0]
+            self.city_first_distance = column.iloc[0]
+            if self.city_first_distance > self.max_distance_pode:
+                print("Pode on 1st")
+                self.poded_algorithm = True
+                return
             self.visited_dataframe_process(self.current_city_first, "Runner 1")
 
         #SI LA EJECUCION ES DEL CORREDOR DOS ASIGNAMOS LA CIUDAD MÁS CERCANA AL CORREDOR 2
         elif runner == "Runner 2":
             self.current_city_second = column.index[0]
+            self.city_second_distance = column.iloc[0]
+            if self.city_second_distance > self.max_distance_pode:
+                print("Pode on 2nd")
+                self.poded_algorithm = True
+                return
             self.visited_dataframe_process(self.current_city_second, "Runner 2")
 
     def filecreator(self,fileroute,nodes):
         with open(fileroute, "w") as f:
-            f.write("NAME : "+ self.current_city_first + ".opt.tour \nTYPE : TOUR\nDIMENSION : " + str(len(self.all_cities)) + "\nSOLUTION : \n")
+            f.write("NAME : "+ self.current_city_first + ".opt.tour \nTYPE : TOUR\nDIMENSION : " + str(self.all_cities) + "\nSOLUTION : \n")
             counter = 1
             for city in (self.city_traveled_first + self.city_traveled_second):
                 content = str(counter) + " " + city + " " + str(nodes[city]) + "\n"
                 f.write(content)
                 counter += 1
             f.close()
-print("Starting bidirectional  script")
+print("Starting bidirectional pode script")
 
 nodes = {
     'huelva' : (20,50),
@@ -162,6 +191,7 @@ distances = {
     'valencia': [],
     'mursia' : []
 }
+
 dataframe_distances = pd.DataFrame(index = nodes.keys(), columns=nodes.keys())
 visited_dataframe = pd.DataFrame(index = ("Runner 1", "Runner 2"), columns = nodes.keys())
 
@@ -169,7 +199,8 @@ dataframe_builder(nodes,visited_dataframe)
 print(f"{dataframe_distances} \n --------------------------------------------------------" )
 print(visited_dataframe)
 bidir_algorithm = Bidirectional_algorithm(dataframe_distances,visited_dataframe)
+bidir_algorithm.distance_pode()
 bidir_algorithm.city_runner()
-bidir_algorithm.filecreator('./data/bidirectional_results.txt', nodes)
+bidir_algorithm.filecreator('./data/bidirectionalpode_result.txt',nodes)
 print(f"Recorrido del primer runner {bidir_algorithm.city_traveled_first}")
 print(f"Recorrido del segundo runner {bidir_algorithm.city_traveled_second}")

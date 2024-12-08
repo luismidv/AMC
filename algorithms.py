@@ -8,126 +8,112 @@ import math
 from fontTools.merge.util import first
 
 
-class Algorithm:
-    def __init__(self,cities):
-        self.nodes_coordinates = cities
-        self.current_city = ""
-        self.current_city_bidirectional= ""
-        self.first_city = ""
-        self.first_city_bidirectional = ""
+class exhaustive():
+    def __init__(self, dataframe_distances):
+        self.dataframe_distances = dataframe_distances
+        print(self.dataframe_distances)
+
+    def max_distance_pode(self):
+        # DEFINIMOS DISTANCIA MAXIMA PARA LA PODA
+
+        # UTILIZAREMOS UN FACTOR K PARA AUMENTAR LA CANTIDAD DE CIUDADES O NO
+        k_factor = 1
+
+        # CALCULAMOS LA MEDIA DE DISTANCIAS CALCULADAS IGNORANDO LAS IGUALES A 0
+        mean_distance = self.dataframe_distances.values[self.dataframe_distances.values > 0].mean()
+
+        # CALCULAMOS LA DESVIACIÓN TÍPICA PARA LAS DISTANCIAS IGNORANDO LAS IGUALES A 0
+        std_deviation = self.dataframe_distances.values[self.dataframe_distances.values > 0].std()
+
+        # COMPUATAMOS EL MAXIMO COMO K * (MEAN + STD)
+        self.max_distance_pode = mean_distance + std_deviation * k_factor
+
+    def cities_exhaustive(self):
+        self.starting_city = input("Introduce a city to start from")
+        self.all_cities = len(self.dataframe_distances.index)
+        self.current_iterations = 0
+        self.cities_runned = []
+
+        print(f"First city {self.starting_city}")
+        self.current_iterations += 1
+        self.cities_runned.append(self.starting_city)
+
+        # FILTRAMOS EL DATAFRAME PARA OBTENER LAS DISTANCIAS PARA SOLO UNA CIUDAD
+        column = self.dataframe_distances[self.starting_city]
+
+        # ELIMINAMOS LA DISTANCIA DE LA CIUDAD CONSIGO MISMA
+        column = column[column != 0]
+
+        # ORDENAMOS LAS DISTANCIAS
+        column = column[column != 0].sort_values()
+
+        # ITERAMOS SIEMPRE QUE EL NUMERO DE ITERACCIONES SEA MENOR QUE EL TOTAL DE CIUDADES
+        while self.current_iterations < self.all_cities:
+
+            # FILTRAMOS PARA NO CALCULAR CON LAS CIUDADES YA RECORRIDAS
+            for city in self.cities_runned:
+                column = column[column.index != city]
+            column = column.sort_values()
+
+            # OBTENEMOS NOMBRE Y DISTANCIA PARA LA CIUDAD MÁS CERCANA
+            self.current_city_distance = column[0]
+            self.current_city_name = column.index[0]
 
 
-    def __getcities__(self):
-        print(self.nodes_coordinates)
+            print(f"Next city to move {self.current_city_name}")
 
-    def calculate_distance(self,coord1,coord2):
-        distancex = coord2[0] - coord1[0]
-        distancey = coord2[1] - coord1[1]
-        distance = distancex**2 + distancey**2
-        result = math.sqrt(distance)
-        #print(result)
-        return result
+            self.current_iterations += 1
+            self.cities_runned.append(self.current_city_name)
 
-    def cities_exhaustive2(self):
-        counter = 0
-        for city2 in self.nodes_coordinates.keys():
-            for city3 in self.nodes_coordinates.keys():
-                if city3 != city2:
-                    counter+=1
-                    distance = self.calculate_distance(nodes[city2],nodes[city3])
-                    distances[city2].append((city3,distance))
+    def filecreator(self,fileroute,nodes):
+        with open(fileroute, "w") as f:
+            f.write("NAME : "+ self.starting_city + ".opt.tour \nTYPE : TOUR\nDIMENSION : " + str(self.all_cities) + "\nSOLUTION : \n")
+            counter = 1
+            for city in self.cities_runned:
+                content = str(counter) + " " + city + " " + str(nodes[city]) + "\n"
+                f.write(content)
+                counter += 1
+            f.close()
 
-    def city_calculator(self,distances,current_city):
-        print(f"Tenemos el diccionario {distances} \n"
-              f"Distancia para la ciudad {current_city}")
-        if current_city == "":
-            current_city = input("Choose a city to start: ")
-        min_distance_city = min(distances[current_city], key=lambda x: x[1])
-        return min_distance_city
-    #EXHAUSTIVE
-    def city_runner_exhaustive(self, distances):
-        my_cities = list(distances.keys())
-        self.current_city = input("Choose a city to start: ")
-        self.first_city = self.current_city
-        while(len(list(distances.keys())) > 1):
-            print(distances)
-            print(f"Iteraccion numero {len(list(distances.keys()))}")
-            closest_city = self.city_calculator(distances,self.current_city)
-            print(f"Closes city to {self.current_city} | {closest_city}")
-            del distances[self.current_city]
-            distances = self.dictionar_iterator(distances,self.current_city)
-            self.current_city = closest_city[0]
-            print(f"Current city: {self.current_city}")
-            print(f"Cities left {distances}")
 
-        current_city = self.first_city
-        print(F"Volvemos a {self.first_city}")
+def calculate_distance(first_city, second_city):
+    # FUNCION QUE UTILIZAREMOS PARA EL CALCULO DE LAS DISTANCIAS ENTRE CIUDADES
+    distance = (second_city[0] - first_city[0]) ** 2 + (second_city[1] - first_city[1]) ** 2
+    return math.sqrt(distance)
 
-    def dictionar_iterator(self,distances,city):
-        print(f"Procedemos a borrar {city}")
-        my_dict = {
-            k: [tupla for tupla in v if city not in tupla]
-            for k, v in distances.items()
-        }
-        return my_dict
 
-    def bidirectional_forward(self,distances,visited):
-        self.current_city_bidirectional = input("Choose a city to start: ")
-        self.first_city_bidirectional = self.current_city_bidirectional
+def dataframe_builder(nodes):
+    # RECIBE UN DICCIONARIO PYTHON CON LAS CIUDADES Y SUS COORDENADAS
+    # CREA UN DATAFRAME PANDAS CON CADA UNA DE LAS CIUDADES Y LA DISTANCIA A LA QUE SE ENCUENTRA DEL RESTO DE CIUDADES
+    # MANDA ESTOS DATOS A UN FICHERO distances.CSV EN LA CARPETA DATA
+    for city in nodes.keys():
+        city_list = []
+        for city2 in nodes.keys():
+            distancia = calculate_distance(list(nodes[city]), list(nodes[city2]))
+            city_list.append(distancia)
 
-        sorted_distances = {
-            city : sorted(distances, key=lambda x: x[1])for city,distances in distances.items()
-        }
+        dataframe_distances[city] = city_list
 
-        closest_city = self.city_calculator(sorted_distances, self.first_city_bidirectional)
-        second_closest_city = self.city_calculator(sorted_distances, self.first_city_bidirectional)
-
-        closest_city_name = closest_city[0]
-        first_visited = visited[closest_city_name]
-        first_visited = first_visited[0]
-        second_visited = False
-        if first_visited == False:
-            print(f"{closest_city[0]} es visitable")
-        else:
-            print(visited[closest_city[0]])
-
-            print(f"{closest_city[0]} es not visitable")
-
-        if second_visited == False:
-            print(f"{second_closest_city[0]} es visitable")
-        else:
-            print(f"{second_closest_city[0]} es not visitable")
+    dataframe_distances.to_csv('data/distances.csv')
 
 
 
+print("Starting exhaustive  script")
 
 nodes = {
-    'huelva' : (20,50),
-    'sevilla' : (10,20),
-    'valencia': (20,30),
-    'mursia' : (30,70)
+    'huelva': (20, 50),
+    'sevilla': (10, 20),
+    'valencia': (20, 30),
+    'mursia': (30, 70),
+    'cordoba': (40, 80),
+    'osuna': (20, 40),
+    'badajoz': (30, 50)
 }
 
-distances = {
-    'huelva' : [],
-    'sevilla' : [],
-    'valencia': [],
-    'mursia' : []
-}
-
-visited = {
-    'huelva' : (False,False),
-    'sevilla': (False, False),
-    'valencia': (False, False),
-    'mursia': (False, False)
-}
-
-
-
-
-myalgo = Algorithm(nodes)
-myalgo.cities_exhaustive2()
-#myalgo.city_calculator(distances)
-#myalgo.city_runner(distances)
-#myalgo.city_runner_exhaustive(distances)
-myalgo.bidirectional_forward(distances,visited)
+nodes = dict(sorted(nodes.items(), key=lambda item: item[1]))
+dataframe_distances = pd.DataFrame(index=nodes.keys(), columns=nodes.keys())
+dataframe_builder(nodes)
+exhaustiveclass = exhaustive(dataframe_distances)
+exhaustiveclass.max_distance_pode()
+exhaustiveclass.cities_exhaustive()
+exhaustiveclass.filecreator('./data/exhaustive_result.txt',nodes)

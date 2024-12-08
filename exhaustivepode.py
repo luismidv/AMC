@@ -6,7 +6,7 @@ class exhaustivePode():
         self.dataframe_distances = dataframe_distances
         print(self.dataframe_distances)
 
-    def max_distance_pode(self):
+    def distance_pode(self):
         #DEFINIMOS DISTANCIA MAXIMA PARA LA PODA
 
         #UTILIZAREMOS UN FACTOR K PARA AUMENTAR LA CANTIDAD DE CIUDADES O NO
@@ -50,12 +50,13 @@ class exhaustivePode():
 
 
             #OBTENEMOS NOMBRE Y DISTANCIA PARA LA CIUDAD MÁS CERCANA
-            self.current_city_distance = column[0]
+            self.current_city_distance = column.iloc[0]
             self.current_city_name = column.index[0]
 
             if self.current_city_distance >= self.max_distance_pode:
                 print(f"Maxima distancia definida alcanzada para ir a la ciudad {self.current_city_name} | {self.current_city_distance}."
                       f"Volvemos a {self.starting_city}")
+                break
 
 
             print(f"Next city to move {self.current_city_name}")
@@ -63,7 +64,16 @@ class exhaustivePode():
             self.current_iterations += 1
             self.cities_runned.append(self.current_city_name)
 
-
+    def filecreator(self, fileroute, nodes):
+        with open(fileroute, "w") as f:
+            f.write("NAME : " + self.starting_city + ".opt.tour \nTYPE : TOUR\nDIMENSION : " + str(
+                self.all_cities) + "\nSOLUTION : \n")
+            counter = 1
+            for city in self.cities_runned:
+                content = str(counter) + " " + city + " " + str(nodes[city]) + "\n"
+                f.write(content)
+                counter += 1
+            f.close()
 
 
 def calculate_distance(first_city,second_city):
@@ -88,6 +98,8 @@ def dataframe_builder(nodes):
     dataframe_distances.to_csv('data/distances.csv')
 
 
+
+
 nodes = {
     'huelva' : (20,50),
     'sevilla' : (10,20),
@@ -97,12 +109,13 @@ nodes = {
     'osuna' : (20,40),
     'badajoz' : (30,50)
 }
-
+print("Starting exhaustive pode script")
 nodes = dict(sorted(nodes.items(), key = lambda item : item[1]))
 dataframe_distances = pd.DataFrame(index = nodes.keys(), columns = nodes.keys())
 dataframe_builder(nodes)
 exhaustiveclass = exhaustivePode(dataframe_distances)
-exhaustiveclass.max_distance_pode()
+exhaustiveclass.distance_pode()
 exhaustiveclass.cities_exhaustive()
+exhaustiveclass.filecreator('./data/exhaustivepode_result.txt', nodes)
 
 
