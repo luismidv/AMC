@@ -4,7 +4,7 @@ from os import close
 
 import pandas as pd
 import math
-
+import filereader
 from fontTools.merge.util import first
 
 
@@ -56,7 +56,7 @@ class exhaustive():
             column = column.sort_values()
 
             # OBTENEMOS NOMBRE Y DISTANCIA PARA LA CIUDAD MÁS CERCANA
-            self.current_city_distance = column[0]
+            self.current_city_distance = column.iloc[0]
             self.current_city_name = column.index[0]
 
 
@@ -110,10 +110,15 @@ nodes = {
     'badajoz': (30, 50)
 }
 
-nodes = dict(sorted(nodes.items(), key=lambda item: item[1]))
-dataframe_distances = pd.DataFrame(index=nodes.keys(), columns=nodes.keys())
-dataframe_builder(nodes)
-exhaustiveclass = exhaustive(dataframe_distances)
-exhaustiveclass.max_distance_pode()
-exhaustiveclass.cities_exhaustive()
-exhaustiveclass.filecreator('./data/exhaustive_result.txt',nodes)
+print("Starting exhaustive pode script")
+nodes_dict = filereader.read_files('./data/dataset_amc_1920/berlin52.tsp/berlin52.tsp')
+dataframe_distances = pd.DataFrame(index = nodes_dict.keys(), columns=nodes_dict.keys())
+visited_dataframe = pd.DataFrame(index = ("Runner 1", "Runner 2"), columns = nodes_dict.keys())
+
+dataframe_builder(nodes_dict)
+bidir_algorithm = exhaustive(dataframe_distances)
+bidir_algorithm.cities_exhaustive()
+
+bidir_algorithm.filecreator('./data/exhaustive_results.txt', nodes_dict)
+print(f"El corredor  ha llegado a las ciudades \n {bidir_algorithm.cities_runned}")
+#TODO SUBIR FICHEROS A NUBE TRAS EJECUCION

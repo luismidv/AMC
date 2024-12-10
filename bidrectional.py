@@ -1,7 +1,7 @@
 import pandas as pd
 from fontTools.merge.util import first
 import math
-
+import filereader
 
 
 
@@ -46,6 +46,7 @@ class Bidirectional_algorithm():
 
         #PEDIMOS UNA CIUDAD POR LA QUE EMPEZAR
         self.current_city_first = input("Enter a city to start")
+        self.first_runner_first = self.current_city_first
         self.visited_dataframe.loc['Runner 1', self.current_city_first] = True
 
         print(f"Primero en visitar {self.current_city_first} \n {self.visited_dataframe}")
@@ -88,8 +89,7 @@ class Bidirectional_algorithm():
 
 
     def visited_dataframe_process(self, runner_city, runner):
-        print(f"El corredor uno ha llegado a las ciudades \n {self.city_traveled_first}")
-        print(f"El corredor dos ha llegado a las ciudades \n {self.city_traveled_second}")
+
 
         if self.visited_dataframe[runner_city][runner] == False:
             self.visited_dataframe.loc[runner,runner_city] = True
@@ -137,7 +137,7 @@ class Bidirectional_algorithm():
 
     def filecreator(self,fileroute,nodes):
         with open(fileroute, "w") as f:
-            f.write("NAME : "+ self.current_city_first + ".opt.tour \nTYPE : TOUR\nDIMENSION : " + str(len(self.all_cities)) + "\nSOLUTION : \n")
+            f.write("NAME : "+ self.first_runner_first + ".opt.tour \nTYPE : TOUR\nDIMENSION : " + str(len(self.all_cities)) + "\nSOLUTION : \n")
             counter = 1
             for city in (self.city_traveled_first + self.city_traveled_second):
                 content = str(counter) + " " + city + " " + str(nodes[city]) + "\n"
@@ -162,14 +162,19 @@ distances = {
     'valencia': [],
     'mursia' : []
 }
-dataframe_distances = pd.DataFrame(index = nodes.keys(), columns=nodes.keys())
-visited_dataframe = pd.DataFrame(index = ("Runner 1", "Runner 2"), columns = nodes.keys())
+#bidir_algorithm = Bidirectional_algorithm(dataframe_distances,visited_dataframe)
+#bidir_algorithm.city_runner()
+#bidir_algorithm.filecreator('./data/bidirectional_results.txt', nodes)
+#print(f"Recorrido del primer runner {bidir_algorithm.city_traveled_first}")
+#print(f"Recorrido del segundo runner {bidir_algorithm.city_traveled_second}")
+nodes_dict = filereader.read_files('./data/dataset_amc_1920/berlin52.tsp/berlin52.tsp')
+dataframe_distances = pd.DataFrame(index = nodes_dict.keys(), columns=nodes_dict.keys())
+visited_dataframe = pd.DataFrame(index = ("Runner 1", "Runner 2"), columns = nodes_dict.keys())
 
-dataframe_builder(nodes,visited_dataframe)
-print(f"{dataframe_distances} \n --------------------------------------------------------" )
-print(visited_dataframe)
+dataframe_builder(nodes_dict,visited_dataframe)
 bidir_algorithm = Bidirectional_algorithm(dataframe_distances,visited_dataframe)
 bidir_algorithm.city_runner()
-bidir_algorithm.filecreator('./data/bidirectional_results.txt', nodes)
-print(f"Recorrido del primer runner {bidir_algorithm.city_traveled_first}")
-print(f"Recorrido del segundo runner {bidir_algorithm.city_traveled_second}")
+bidir_algorithm.filecreator('./data/bidirectional_results.txt', nodes_dict)
+print(f"El corredor uno ha llegado a las ciudades \n {bidir_algorithm.city_traveled_first}")
+print(f"El corredor dos ha llegado a las ciudades \n {bidir_algorithm.city_traveled_second}")
+#TODO SUBIR FICHEROS A NUBE TRAS EJECUCION

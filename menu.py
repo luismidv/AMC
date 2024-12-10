@@ -1,3 +1,4 @@
+
 def menu_starter():
     option = input(f"What algorithms will you run: \n"
           f"    1. Exhaustive. \n"

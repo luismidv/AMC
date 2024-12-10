@@ -1,5 +1,6 @@
 import math
 import pandas as pd
+import filereader
 
 class exhaustivePode():
     def __init__(self, dataframe_distances):
@@ -10,7 +11,7 @@ class exhaustivePode():
         #DEFINIMOS DISTANCIA MAXIMA PARA LA PODA
 
         #UTILIZAREMOS UN FACTOR K PARA AUMENTAR LA CANTIDAD DE CIUDADES O NO
-        k_factor = 1
+        k_factor = 0.5
 
         #CALCULAMOS LA MEDIA DE DISTANCIAS CALCULADAS IGNORANDO LAS IGUALES A 0
         mean_distance = self.dataframe_distances.values[self.dataframe_distances.values > 0].mean()
@@ -110,12 +111,16 @@ nodes = {
     'badajoz' : (30,50)
 }
 print("Starting exhaustive pode script")
-nodes = dict(sorted(nodes.items(), key = lambda item : item[1]))
-dataframe_distances = pd.DataFrame(index = nodes.keys(), columns = nodes.keys())
-dataframe_builder(nodes)
-exhaustiveclass = exhaustivePode(dataframe_distances)
-exhaustiveclass.distance_pode()
-exhaustiveclass.cities_exhaustive()
-exhaustiveclass.filecreator('./data/exhaustivepode_result.txt', nodes)
+nodes_dict = filereader.read_files('./data/dataset_amc_1920/berlin52.tsp/berlin52.tsp')
+dataframe_distances = pd.DataFrame(index = nodes_dict.keys(), columns=nodes_dict.keys())
+visited_dataframe = pd.DataFrame(index = ("Runner 1", "Runner 2"), columns = nodes_dict.keys())
 
+dataframe_builder(nodes_dict)
+bidir_algorithm = exhaustivePode(dataframe_distances)
+bidir_algorithm.distance_pode()
+bidir_algorithm.cities_exhaustive()
+
+bidir_algorithm.filecreator('./data/exhaustivepode_results.txt', nodes_dict)
+print(f"El corredor  ha llegado a las ciudades \n {bidir_algorithm.cities_runned}")
+#TODO SUBIR FICHEROS A NUBE TRAS EJECUCION
 
