@@ -2,8 +2,8 @@ import pandas as pd
 from fontTools.merge.util import first
 import math
 import filereader
-
-
+import sys
+import numpy as np
 
 def calculate_distance(first_city,second_city):
     #FUNCION QUE UTILIZAREMOS PARA EL CALCULO DE LAS DISTANCIAS ENTRE CIUDADES
@@ -63,7 +63,7 @@ class Bidirectional_algorithm():
         self.city_traveled_second = []
 
         #PEDIMOS UNA CIUDAD POR LA QUE EMPEZAR
-        self.current_city_first = input("Enter a city to start")
+        self.current_city_first = str(int(np.random.randint(1,len(self.dataframe_distances.index)-1,1)))
         self.visited_dataframe.loc['Runner 1', self.current_city_first] = True
 
         print(f"Primero en visitar {self.current_city_first} \n {self.visited_dataframe}")
@@ -191,9 +191,10 @@ distances = {
     'mursia' : []
 }
 
+if __name__ == "__main__":
+    filename = sys.argv[1]
 
-
-nodes_dict = filereader.read_files('./data/dataset_amc_1920/berlin52.tsp/berlin52.tsp')
+nodes_dict = filereader.read_files(filename)
 dataframe_distances = pd.DataFrame(index = nodes_dict.keys(), columns=nodes_dict.keys())
 visited_dataframe = pd.DataFrame(index = ("Runner 1", "Runner 2"), columns = nodes_dict.keys())
 

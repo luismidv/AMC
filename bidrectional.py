@@ -2,7 +2,8 @@ import pandas as pd
 from fontTools.merge.util import first
 import math
 import filereader
-
+import numpy as np
+import sys
 
 
 def calculate_distance(first_city,second_city):
@@ -45,7 +46,7 @@ class Bidirectional_algorithm():
         self.city_traveled_second = []
 
         #PEDIMOS UNA CIUDAD POR LA QUE EMPEZAR
-        self.current_city_first = input("Enter a city to start")
+        self.current_city_first = str(int(np.random.randint(1,len(self.dataframe_distances.index)-1,1)))
         self.first_runner_first = self.current_city_first
         self.visited_dataframe.loc['Runner 1', self.current_city_first] = True
 
@@ -162,12 +163,14 @@ distances = {
     'valencia': [],
     'mursia' : []
 }
+if __name__ == "__main__":
+    filename = sys.argv[1]
 #bidir_algorithm = Bidirectional_algorithm(dataframe_distances,visited_dataframe)
 #bidir_algorithm.city_runner()
 #bidir_algorithm.filecreator('./data/bidirectional_results.txt', nodes)
 #print(f"Recorrido del primer runner {bidir_algorithm.city_traveled_first}")
 #print(f"Recorrido del segundo runner {bidir_algorithm.city_traveled_second}")
-nodes_dict = filereader.read_files('./data/dataset_amc_1920/berlin52.tsp/berlin52.tsp')
+nodes_dict = filereader.read_files(filename)
 dataframe_distances = pd.DataFrame(index = nodes_dict.keys(), columns=nodes_dict.keys())
 visited_dataframe = pd.DataFrame(index = ("Runner 1", "Runner 2"), columns = nodes_dict.keys())
 

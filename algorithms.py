@@ -5,6 +5,8 @@ from os import close
 import pandas as pd
 import math
 import filereader
+import numpy as np
+import sys
 from fontTools.merge.util import first
 
 
@@ -29,7 +31,7 @@ class exhaustive():
         self.max_distance_pode = mean_distance + std_deviation * k_factor
 
     def cities_exhaustive(self):
-        self.starting_city = input("Introduce a city to start from")
+        self.starting_city = str(int(np.random.randint(1,len(self.dataframe_distances.index)-1,1)))
         self.all_cities = len(self.dataframe_distances.index)
         self.current_iterations = 0
         self.cities_runned = []
@@ -110,6 +112,8 @@ nodes = {
     'badajoz': (30, 50)
 }
 
+if __name__ == "__main__":
+    filename = sys.argv[1]
 print("Starting exhaustive pode script")
 nodes_dict = filereader.read_files('./data/dataset_amc_1920/berlin52.tsp/berlin52.tsp')
 dataframe_distances = pd.DataFrame(index = nodes_dict.keys(), columns=nodes_dict.keys())

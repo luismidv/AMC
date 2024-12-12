@@ -1,6 +1,8 @@
 import math
 import pandas as pd
 import filereader
+import sys
+import numpy as np
 
 class exhaustivePode():
     def __init__(self, dataframe_distances):
@@ -23,7 +25,8 @@ class exhaustivePode():
         self.max_distance_pode = mean_distance + std_deviation*k_factor
 
     def cities_exhaustive(self):
-        self.starting_city = input("Introduce a city to start from")
+        self.starting_city = str(int(np.random.randint(1,len(self.dataframe_distances.index)-1,1)))
+        print(f"Starting city {self.starting_city}")
         self.all_cities = len(self.dataframe_distances.index)
         self.current_iterations = 0
         self.cities_runned = []
@@ -110,8 +113,14 @@ nodes = {
     'osuna' : (20,40),
     'badajoz' : (30,50)
 }
+
+if __name__ == "__main__":
+    filename = sys.argv[1]
+
+
+filename = './data/dataset_amc_1920/berlin52.tsp/berlin52.tsp'
 print("Starting exhaustive pode script")
-nodes_dict = filereader.read_files('./data/dataset_amc_1920/berlin52.tsp/berlin52.tsp')
+nodes_dict = filereader.read_files(filename)
 dataframe_distances = pd.DataFrame(index = nodes_dict.keys(), columns=nodes_dict.keys())
 visited_dataframe = pd.DataFrame(index = ("Runner 1", "Runner 2"), columns = nodes_dict.keys())
 
