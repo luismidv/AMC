@@ -8,6 +8,7 @@ import filereader
 import numpy as np
 import sys
 from fontTools.merge.util import first
+import time
 
 
 class exhaustive():
@@ -31,6 +32,7 @@ class exhaustive():
         self.max_distance_pode = mean_distance + std_deviation * k_factor
 
     def cities_exhaustive(self):
+
         self.starting_city = str(int(np.random.randint(1,len(self.dataframe_distances.index)-1,1)))
         self.all_cities = len(self.dataframe_distances.index)
         self.current_iterations = 0
@@ -67,9 +69,9 @@ class exhaustive():
             self.current_iterations += 1
             self.cities_runned.append(self.current_city_name)
 
-    def filecreator(self,fileroute,nodes):
+    def filecreator(self,fileroute,nodes,time):
         with open(fileroute, "w") as f:
-            f.write("NAME : "+ self.starting_city + ".opt.tour \nTYPE : TOUR\nDIMENSION : " + str(self.all_cities) + "\nSOLUTION : \n")
+            f.write("NAME : "+ self.starting_city + ".opt.tour \nEXECUTION TIME: " + str(time) +  "\nTYPE : TOUR\nDIMENSION : " + str(self.all_cities) + "\nSOLUTION : \n")
             counter = 1
             for city in self.cities_runned:
                 content = str(counter) + " " + city + " " + str(nodes[city]) + "\n"
@@ -100,7 +102,6 @@ def dataframe_builder(nodes):
 
 
 
-print("Starting exhaustive  script")
 
 nodes = {
     'huelva': (20, 50),
@@ -115,6 +116,7 @@ nodes = {
 if __name__ == "__main__":
     filename = sys.argv[1]
 print("Starting exhaustive pode script")
+starting_time = time.time()
 nodes_dict = filereader.read_files('./data/dataset_amc_1920/berlin52.tsp/berlin52.tsp')
 dataframe_distances = pd.DataFrame(index = nodes_dict.keys(), columns=nodes_dict.keys())
 visited_dataframe = pd.DataFrame(index = ("Runner 1", "Runner 2"), columns = nodes_dict.keys())
@@ -122,7 +124,8 @@ visited_dataframe = pd.DataFrame(index = ("Runner 1", "Runner 2"), columns = nod
 dataframe_builder(nodes_dict)
 bidir_algorithm = exhaustive(dataframe_distances)
 bidir_algorithm.cities_exhaustive()
+ending_time = time.time()-starting_time
 
-bidir_algorithm.filecreator('./data/exhaustive_results.txt', nodes_dict)
+bidir_algorithm.filecreator('./data/exhaustive_results.txt', nodes_dict,ending_time)
 print(f"El corredor  ha llegado a las ciudades \n {bidir_algorithm.cities_runned}")
 #TODO SUBIR FICHEROS A NUBE TRAS EJECUCION

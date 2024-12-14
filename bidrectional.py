@@ -4,7 +4,7 @@ import math
 import filereader
 import numpy as np
 import sys
-
+import time
 
 def calculate_distance(first_city,second_city):
     #FUNCION QUE UTILIZAREMOS PARA EL CALCULO DE LAS DISTANCIAS ENTRE CIUDADES
@@ -136,9 +136,9 @@ class Bidirectional_algorithm():
             self.current_city_second = column.index[0]
             self.visited_dataframe_process(self.current_city_second, "Runner 2")
 
-    def filecreator(self,fileroute,nodes):
+    def filecreator(self,fileroute,nodes,time):
         with open(fileroute, "w") as f:
-            f.write("NAME : "+ self.first_runner_first + ".opt.tour \nTYPE : TOUR\nDIMENSION : " + str(len(self.all_cities)) + "\nSOLUTION : \n")
+            f.write("NAME : "+ self.first_runner_first + ".opt.tour \nEXECUTION TIME: " + str(time) + "\nTYPE : TOUR\nDIMENSION : " + str(len(self.all_cities)) + "\nSOLUTION : \n")
             counter = 1
             for city in (self.city_traveled_first + self.city_traveled_second):
                 content = str(counter) + " " + city + " " + str(nodes[city]) + "\n"
@@ -170,6 +170,7 @@ if __name__ == "__main__":
 #bidir_algorithm.filecreator('./data/bidirectional_results.txt', nodes)
 #print(f"Recorrido del primer runner {bidir_algorithm.city_traveled_first}")
 #print(f"Recorrido del segundo runner {bidir_algorithm.city_traveled_second}")
+staring_time = time.time()
 nodes_dict = filereader.read_files(filename)
 dataframe_distances = pd.DataFrame(index = nodes_dict.keys(), columns=nodes_dict.keys())
 visited_dataframe = pd.DataFrame(index = ("Runner 1", "Runner 2"), columns = nodes_dict.keys())
@@ -177,7 +178,8 @@ visited_dataframe = pd.DataFrame(index = ("Runner 1", "Runner 2"), columns = nod
 dataframe_builder(nodes_dict,visited_dataframe)
 bidir_algorithm = Bidirectional_algorithm(dataframe_distances,visited_dataframe)
 bidir_algorithm.city_runner()
-bidir_algorithm.filecreator('./data/bidirectional_results.txt', nodes_dict)
+ending_time = time.time() - staring_time
+bidir_algorithm.filecreator('./data/bidirectional_results.txt', nodes_dict,ending_time)
 print(f"El corredor uno ha llegado a las ciudades \n {bidir_algorithm.city_traveled_first}")
 print(f"El corredor dos ha llegado a las ciudades \n {bidir_algorithm.city_traveled_second}")
 #TODO SUBIR FICHEROS A NUBE TRAS EJECUCION

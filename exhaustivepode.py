@@ -3,6 +3,10 @@ import pandas as pd
 import filereader
 import sys
 import numpy as np
+import time
+
+from algorithms import starting_time, ending_time
+
 
 class exhaustivePode():
     def __init__(self, dataframe_distances):
@@ -68,9 +72,9 @@ class exhaustivePode():
             self.current_iterations += 1
             self.cities_runned.append(self.current_city_name)
 
-    def filecreator(self, fileroute, nodes):
+    def filecreator(self, fileroute, nodes,time):
         with open(fileroute, "w") as f:
-            f.write("NAME : " + self.starting_city + ".opt.tour \nTYPE : TOUR\nDIMENSION : " + str(
+            f.write("NAME : " + self.starting_city + ".opt.tour \nEXECUTION TIME: " + str(time) +   "\nTYPE : TOUR\nDIMENSION : " + str(
                 self.all_cities) + "\nSOLUTION : \n")
             counter = 1
             for city in self.cities_runned:
@@ -120,6 +124,7 @@ if __name__ == "__main__":
 
 filename = './data/dataset_amc_1920/berlin52.tsp/berlin52.tsp'
 print("Starting exhaustive pode script")
+starting_time = time.time()
 nodes_dict = filereader.read_files(filename)
 dataframe_distances = pd.DataFrame(index = nodes_dict.keys(), columns=nodes_dict.keys())
 visited_dataframe = pd.DataFrame(index = ("Runner 1", "Runner 2"), columns = nodes_dict.keys())
@@ -128,8 +133,8 @@ dataframe_builder(nodes_dict)
 bidir_algorithm = exhaustivePode(dataframe_distances)
 bidir_algorithm.distance_pode()
 bidir_algorithm.cities_exhaustive()
-
-bidir_algorithm.filecreator('./data/exhaustivepode_results.txt', nodes_dict)
+ending_time = time.time()-starting_time
+bidir_algorithm.filecreator('./data/exhaustivepode_results.txt', nodes_dict,ending_time)
 print(f"El corredor  ha llegado a las ciudades \n {bidir_algorithm.cities_runned}")
 #TODO SUBIR FICHEROS A NUBE TRAS EJECUCION
 
