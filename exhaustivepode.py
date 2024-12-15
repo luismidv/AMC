@@ -122,9 +122,9 @@ if __name__ == "__main__":
     filename = sys.argv[1]
 
 
-filename = './data/dataset_amc_1920/berlin52.tsp/berlin52.tsp'
 print("Starting exhaustive pode script")
 starting_time = time.time()
+print(f"Filename {filename}")
 nodes_dict = filereader.read_files(filename)
 dataframe_distances = pd.DataFrame(index = nodes_dict.keys(), columns=nodes_dict.keys())
 visited_dataframe = pd.DataFrame(index = ("Runner 1", "Runner 2"), columns = nodes_dict.keys())
